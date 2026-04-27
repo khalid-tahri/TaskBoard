@@ -6,7 +6,9 @@ class KanbanApp {
     constructor() {
         // --- Configuration & Sélecteurs DOM ---
         this.STORAGE_KEY = 'kanban_tasks';
+        this.MODULES_STORAGE_KEY = 'kanban_modules';
         this.tasks = [];
+        this.modules = [];
 
         // Sélecteurs globaux
         this.board = document.querySelector('.kanban-board');
@@ -19,10 +21,19 @@ class KanbanApp {
         this.moduleInput = document.getElementById('task-module');
         this.editingTaskId = null;
 
+        // Sélecteurs Modale Modules
+        this.moduleModal = document.getElementById('module-modal');
+        this.moduleForm = document.getElementById('module-form');
+        this.moduleNameInput = document.getElementById('module-name');
+        this.moduleColorInput = document.getElementById('module-color');
+        this.modulesList = document.getElementById('modules-list');
+
         // Boutons
         this.addTaskBtn = document.getElementById('add-task-btn');
         this.closeModalBtn = document.getElementById('close-modal-btn');
         this.cancelTaskBtn = document.getElementById('cancel-task-btn');
+        this.manageModulesBtn = document.getElementById('manage-modules-btn');
+        this.closeModuleModalBtn = document.getElementById('close-module-modal-btn');
         
         // Theme
         this.themeToggleBtn = document.getElementById('theme-toggle-btn');
@@ -41,6 +52,7 @@ class KanbanApp {
 
     init() {
         this.loadTheme();
+        this.loadModules();
         this.loadTasks();
         this.bindEvents();
         this.renderAllTasks();
@@ -71,6 +83,40 @@ class KanbanApp {
     }
 
     // --- Gestion du LocalStorage ---
+    loadModules() {
+        const stored = localStorage.getItem(this.MODULES_STORAGE_KEY);
+        if (stored) {
+            try {
+                this.modules = JSON.parse(stored);
+            } catch (e) {
+                console.error("Erreur lors du parsing des modules", e);
+                this.initDefaultModules();
+            }
+        } else {
+            this.initDefaultModules();
+        }
+        this.renderModuleSelect();
+    }
+
+    initDefaultModules() {
+        this.modules = [
+            { id: 'm1', name: 'Creativity, innovation and design thinking', color: '#f43f5e' },
+            { id: 'm2', name: 'L’ingénierie du prompting', color: '#3b82f6' },
+            { id: 'm3', name: 'Culture entrepreuneurale et techniques de communication', color: '#f59e0b' },
+            { id: 'm4', name: 'Introduction à la neuroéducation', color: '#a855f7' },
+            { id: 'm5', name: 'Introduction aux technologies de l\'éducation', color: '#06b6d4' },
+            { id: 'm6', name: 'Méthodologie de recherche', color: '#10b981' },
+            { id: 'm7', name: 'Pragmatique de la communication et de l’apprentissage', color: '#4f46e5' },
+            { id: 'm8', name: 'Séminaire de recherche', color: '#ef4444' },
+            { id: 'm9', name: 'Sémiotique et communication', color: '#eab308' }
+        ];
+        this.saveModules();
+    }
+
+    saveModules() {
+        localStorage.setItem(this.MODULES_STORAGE_KEY, JSON.stringify(this.modules));
+    }
+
     loadTasks() {
         const stored = localStorage.getItem(this.STORAGE_KEY);
         if (stored) {
@@ -81,13 +127,7 @@ class KanbanApp {
                 this.tasks = [];
             }
         } else {
-            // Tâches par défaut pour la démo lors de la première visite
-            this.tasks = [
-                { id: '1', title: 'Définir l\'architecture', desc: 'Créer la structure HTML et CSS.', status: 'done', priority: 'high' },
-                { id: '2', title: 'Implémenter le Drag & Drop', desc: 'Utiliser l\'API native HTML5.', status: 'in-progress', priority: 'medium' },
-                { id: '3', title: 'Gérer le LocalStorage', desc: 'Sauvegarder l\'état entre les rechargements.', status: 'todo', priority: 'low' }
-            ];
-            this.saveTasks();
+            this.tasks = [];
         }
     }
 
@@ -103,13 +143,23 @@ class KanbanApp {
         this.cancelTaskBtn.addEventListener('click', () => this.closeModal());
         this.themeToggleBtn.addEventListener('click', () => this.toggleTheme());
         
-        // Fermeture de la modale au clic en dehors du contenu
+        // Gestion de la modale des modules
+        if (this.manageModulesBtn) this.manageModulesBtn.addEventListener('click', () => this.openModuleModal());
+        if (this.closeModuleModalBtn) this.closeModuleModalBtn.addEventListener('click', () => this.closeModuleModal());
+
+        // Fermeture des modales au clic en dehors du contenu
         this.taskModal.addEventListener('click', (e) => {
             if (e.target === this.taskModal) this.closeModal();
         });
+        if (this.moduleModal) {
+            this.moduleModal.addEventListener('click', (e) => {
+                if (e.target === this.moduleModal) this.closeModuleModal();
+            });
+        }
 
-        // Soumission du formulaire
+        // Soumission des formulaires
         this.taskForm.addEventListener('submit', (e) => this.handleTaskSubmit(e));
+        if (this.moduleForm) this.moduleForm.addEventListener('submit', (e) => this.handleModuleSubmit(e));
 
         // Configuration Drag and Drop sur chaque liste
         const lists = document.querySelectorAll('.task-list');
@@ -132,6 +182,124 @@ class KanbanApp {
         this.taskForm.reset();
         this.editingTaskId = null;
         if (this.modalTitle) this.modalTitle.textContent = "Ajouter une tâche";
+    }
+
+    openModuleModal() {
+        if (!this.moduleModal) return;
+        this.moduleModal.classList.remove('hidden');
+        this.renderModuleList();
+    }
+
+    closeModuleModal() {
+        if (!this.moduleModal) return;
+        this.moduleModal.classList.add('hidden');
+        this.moduleForm.reset();
+        this.moduleColorInput.value = '#6366f1';
+    }
+
+    renderModuleSelect() {
+        if (!this.moduleInput) return;
+        this.moduleInput.innerHTML = '<option value="" disabled selected>Choisir un module</option>';
+        this.modules.forEach(mod => {
+            const option = document.createElement('option');
+            option.value = mod.name;
+            option.textContent = mod.name;
+            this.moduleInput.appendChild(option);
+        });
+    }
+
+    renderModuleList() {
+        if (!this.modulesList) return;
+        this.modulesList.innerHTML = '';
+        if (this.modules.length === 0) {
+            this.modulesList.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.9rem; text-align: center;">Aucun module.</p>';
+            return;
+        }
+
+        this.modules.forEach(mod => {
+            const item = document.createElement('div');
+            item.className = 'module-list-item';
+            
+            const info = document.createElement('div');
+            info.className = 'module-info';
+            
+            const colorDot = document.createElement('span');
+            colorDot.className = 'module-color-dot';
+            colorDot.style.backgroundColor = mod.color;
+            
+            const name = document.createElement('span');
+            name.textContent = mod.name;
+            
+            info.appendChild(colorDot);
+            info.appendChild(name);
+            
+            const delBtn = document.createElement('button');
+            delBtn.className = 'icon-btn delete-module-btn';
+            delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
+            delBtn.onclick = () => this.deleteModule(mod.id);
+            
+            item.appendChild(info);
+            item.appendChild(delBtn);
+            
+            this.modulesList.appendChild(item);
+        });
+    }
+
+    handleModuleSubmit(e) {
+        e.preventDefault();
+        const name = this.moduleNameInput.value.trim();
+        const color = this.moduleColorInput.value;
+        
+        if (!name) return;
+        
+        // Vérifier si le nom existe déjà
+        if (this.modules.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+            alert('Ce module existe déjà.');
+            return;
+        }
+        
+        const newModule = {
+            id: 'm_' + Date.now().toString(),
+            name,
+            color
+        };
+        
+        this.modules.push(newModule);
+        this.saveModules();
+        this.renderModuleSelect();
+        this.renderModuleList();
+        
+        // Mettre à jour l'affichage des tâches existantes au cas où un module de même nom existerait
+        this.renderAllTasks(); 
+        
+        this.moduleForm.reset();
+        this.moduleColorInput.value = '#6366f1';
+    }
+
+    deleteModule(id) {
+        const moduleToDelete = this.modules.find(m => m.id === id);
+        if (!moduleToDelete) return;
+        
+        // Vérifier s'il est utilisé
+        const isUsed = this.tasks.some(t => t.module === moduleToDelete.name);
+        if (isUsed) {
+            const confirmDelete = confirm(`Ce module est utilisé par des tâches. Si vous le supprimez, les tâches perdront cette association. Continuer ?`);
+            if (!confirmDelete) return;
+            
+            // Retirer le module des tâches
+            this.tasks.forEach(t => {
+                if (t.module === moduleToDelete.name) {
+                    t.module = "";
+                }
+            });
+            this.saveTasks();
+        }
+        
+        this.modules = this.modules.filter(m => m.id !== id);
+        this.saveModules();
+        this.renderModuleSelect();
+        this.renderModuleList();
+        this.renderAllTasks();
     }
 
     editTask(id) {
@@ -231,18 +399,8 @@ class KanbanApp {
         const pClass = task.priority ? `priority-${task.priority}` : 'priority-medium';
 
         // Configuration de la couleur du module
-        const moduleColors = {
-            "Creativity, innovation and design thinking": "#f43f5e", // Rose
-            "L’ingénierie du prompting": "#3b82f6", // Bleu
-            "Culture entrepreuneurale et techniques de communication": "#f59e0b", // Orange
-            "Introduction à la neuroéducation": "#a855f7", // Violet
-            "Introduction aux technologies de l'éducation": "#06b6d4", // Cyan
-            "Méthodologie de recherche": "#10b981", // Vert
-            "Pragmatique de la communication et de l’apprentissage": "#4f46e5", // Indigo
-            "Séminaire de recherche": "#ef4444", // Rouge
-            "Sémiotique et communication": "#eab308" // Jaune
-        };
-        const moduleColor = task.module && moduleColors[task.module] ? moduleColors[task.module] : "var(--glass-border)";
+        const mod = this.modules.find(m => m.name === task.module);
+        const moduleColor = mod ? mod.color : "var(--glass-border)";
         card.style.setProperty('--module-color', moduleColor);
 
         const timeInMinutes = this.getTaskTimeInMinutes(task);

@@ -25,14 +25,17 @@
             <h1>TaskBoard</h1>
         </div>
         <div class="header-right">
-            <button id="theme-toggle-btn" class="icon-btn" aria-label="Basculer le thème">
+            <button id="manage-modules-btn" class="icon-btn" aria-label="Gérer les modules" title="Gérer les modules">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </button>
+            <button id="theme-toggle-btn" class="icon-btn" aria-label="Basculer le thème" title="Basculer le thème">
                 <svg id="moon-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                 <svg id="sun-icon" class="d-none" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
             </button>
             <button id="add-task-btn" class="primary-btn">
                 <!-- Icône "Plus" SVG -->
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Nouvelle Tâche
+                <span class="btn-text">Nouvelle Tâche</span>
             </button>
         </div>
     </header>
@@ -90,15 +93,7 @@
                     <label for="task-module">Module</label>
                     <select id="task-module" required>
                         <option value="" disabled selected>Choisir un module</option>
-                        <option value="Creativity, innovation and design thinking">Creativity, innovation and design thinking</option>
-                        <option value="L’ingénierie du prompting">L’ingénierie du prompting</option>
-                        <option value="Culture entrepreuneurale et techniques de communication">Culture entrepreuneurale et techniques de communication</option>
-                        <option value="Introduction à la neuroéducation">Introduction à la neuroéducation</option>
-                        <option value="Introduction aux technologies de l'éducation">Introduction aux technologies de l'éducation</option>
-                        <option value="Méthodologie de recherche">Méthodologie de recherche</option>
-                        <option value="Pragmatique de la communication et de l’apprentissage">Pragmatique de la communication et de l’apprentissage</option>
-                        <option value="Séminaire de recherche">Séminaire de recherche</option>
-                        <option value="Sémiotique et communication">Sémiotique et communication</option>
+                        <!-- Options générées dynamiquement -->
                     </select>
                 </div>
                 <div class="form-group">
@@ -110,6 +105,28 @@
                     <button type="submit" class="primary-btn">Enregistrer</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modale de gestion des modules -->
+    <div id="module-modal" class="modal hidden">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Gérer les modules</h2>
+                <button id="close-module-modal-btn" class="icon-btn">&times;</button>
+            </header>
+            
+            <form id="module-form" class="module-form">
+                <div class="form-group module-input-group">
+                    <input type="text" id="module-name" required placeholder="Nouveau module (ex: Base de données)">
+                    <input type="color" id="module-color" value="#6366f1" title="Couleur du module">
+                    <button type="submit" class="primary-btn">Ajouter</button>
+                </div>
+            </form>
+
+            <div class="modules-list" id="modules-list">
+                <!-- Liste des modules générée dynamiquement -->
+            </div>
         </div>
     </div>
 

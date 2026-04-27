@@ -555,6 +555,94 @@ body.light-mode .priority-high { color: #dc2626; }
     margin-top: 2.5rem;
 }
 
+/* --- Modale Modules --- */
+.module-input-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.module-input-group input[type="text"] {
+    flex: 1;
+}
+
+.module-input-group input[type="color"] {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    background: none;
+}
+
+.module-input-group input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.module-input-group input[type="color"]::-webkit-color-swatch {
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+}
+
+.modules-list {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* Scrollbar pour la liste des modules */
+.modules-list::-webkit-scrollbar {
+    width: 6px;
+}
+.modules-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.modules-list::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+}
+
+.module-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--form-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.module-list-item:hover {
+    background: var(--glass-hover);
+}
+
+.module-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.module-color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.delete-module-btn {
+    opacity: 0.5;
+}
+
+.module-list-item:hover .delete-module-btn {
+    opacity: 1;
+}
+
 /* --- Responsivité --- */
 @media (max-width: 1024px) {
     .kanban-board {
@@ -571,6 +659,58 @@ body.light-mode .priority-high { color: #dc2626; }
     .delete-btn {
         opacity: 1; 
         background: var(--glass-hover);
+    }
+}
+
+@media (max-width: 768px) {
+    #add-task-btn .btn-text {
+        display: none;
+    }
+    
+    #add-task-btn {
+        padding: 0.75rem;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        justify-content: center;
+    }
+
+    .app-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .app-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .app-logo svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .kanban-board {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .kanban-column {
+        min-height: 200px;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        width: calc(100% - 2rem);
+        margin: 1rem;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .modal-actions button {
+        width: 100%;
+        justify-content: center;
     }
 }
 
